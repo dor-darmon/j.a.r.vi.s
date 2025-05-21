@@ -1,35 +1,46 @@
-def main():
+"""
+Entry point – starts wake-word loop and dispatches Hebrew commands.
+"""
+
+import os
+from dotenv import load_dotenv
+from assistants.wake_word import WakeWordDetector
+from assistants.recognizer import SpeechRecognizer
+from assistants.tts import SpeechSynthesizer
+from assistants.brain import AssistantBrain
+from assistants.dispatcher import ActionDispatcher
+
+def main() -> None:
     load_dotenv()
 
-    vosk_model_path = "vosk-model-small-he-0.4"      # adjust if needed
-    keyword_path = str(Path("keywords/computer.ppn"))  # or Hebrew keyword ppn
-
-    wake_detector = WakeWordDetector(keyword_path)
-    recognizer = SpeechRecognizer(vosk_model_path)
+    wake = WakeWordDetector(
+        keyword_path="resources/keywords/computer.ppn",
+        access_key=os.getenv("PORCUPINE_ACCESS_KEY"),
+    )
+    recognizer = SpeechRecognizer("resources/vosk-model-small-he-0.4")
     tts = SpeechSynthesizer()
     brain = AssistantBrain(os.getenv("OPENAI_API_KEY", ""))
     dispatcher = ActionDispatcher(brain, tts)
 
-    wake_detector.start()
+    wake.start()
     tts.speak("המערכת פועלת. אמור 'computer' כדי להתחיל.")
 
     try:
         while True:
-            wake_detector.wait()
+            wake.wait()              # blocks until key-word
             tts.speak("כן?")
-            sentence = recognizer.listen_once()
-            if sentence:
-                print(f"You said: {sentence}")
-                dispatcher.handle(sentence)
+            command = recognizer.listen_once()
+            if command:
+                print(f"You said: {command}")
+                dispatcher.handle(command)
             else:
                 tts.speak("לא שמעתי כלום.")
     except KeyboardInterrupt:
         pass
     finally:
-        wake_detector.stop()
+        wake.stop()
         recognizer.close()
         tts.speak("להתראות")
-
 
 if __name__ == "__main__":
     main()
