@@ -1,4 +1,4 @@
-ef main():
+def main():
     load_dotenv()
 
     vosk_model_path = "vosk-model-small-he-0.4"      # adjust if needed
