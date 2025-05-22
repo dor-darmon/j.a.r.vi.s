@@ -4,7 +4,7 @@ Wake-Word detection using Porcupine.
 
 import threading
 import pyaudio
-from porcupine import Porcupine, PorcupineActivationException
+from pvporcupine import Porcupine, PorcupineActivationError
 
 class WakeWordDetector(threading.Thread):
     def __init__(self, keyword_path: str, access_key: str):
@@ -16,7 +16,7 @@ class WakeWordDetector(threading.Thread):
             self.porcupine = Porcupine(
                 access_key=access_key, keyword_paths=[keyword_path]
             )
-        except PorcupineActivationException as e:
+        except PorcupineActivationError as e:
             raise RuntimeError("Invalid Picovoice access key") from e
 
         self.pa = pyaudio.PyAudio()

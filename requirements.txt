@@ -1,0 +1,7 @@
+vosk
+pyaudio
+pvporcupine
+pyttsx3
+duckduckgo-search
+python-dotenv
+openai
